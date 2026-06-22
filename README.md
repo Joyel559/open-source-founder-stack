@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/pixel_avatar.png" width="140" height="140" alt="System Active Terminal Logo" />
+  <img src="assets/560205641163845311.jpeg" width="140" height="140" alt="System Active Terminal Logo" />
   <h1>the-open-source-founder-stack</h1>
   <p><b>[SYSTEM STATUS: ACTIVE] // [HOST_01]</b></p>
   <p>A curated directory of production-ready agent frameworks, tools, systems, and open-source SaaS alternatives for software founders.</p>
