@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   // Constants and State
+  let STACK_DATA = [];
   const sidebarNav = document.getElementById("sidebar-nav");
   const contentSection = document.getElementById("content-sections");
   const searchInput = document.getElementById("search-input");
@@ -11,38 +12,138 @@ document.addEventListener("DOMContentLoaded", () => {
   const statFeatured = document.getElementById("stat-featured");
   const statAlternatives = document.getElementById("stat-alternatives");
 
-  // Suggest Modal Elements
-  const suggestBtn = document.getElementById("suggest-btn");
-  const modalOverlay = document.getElementById("modal-overlay");
-  const modalClose = document.getElementById("modal-close");
-  const suggestForm = document.getElementById("suggest-form");
-  const copyPayloadBtn = document.getElementById("copy-payload-btn");
-
-  // Initial Calculation of Stats
-  let totalToolsCount = 0;
-  let featuredCount = 0;
-  let alternativesCount = 0;
-
-  STACK_DATA.forEach(cat => {
-    totalToolsCount += cat.items.length;
-    if (cat.categoryId === "saas-alternatives") {
-      alternativesCount += cat.items.length;
-    } else {
-      cat.items.forEach(item => {
-        if (item.stars && item.stars.includes("K")) {
-          featuredCount++;
-        }
-      });
+  // Load and Parse README.md
+  async function loadDataFromReadme() {
+    try {
+      const response = await fetch("README.md");
+      if (!response.ok) {
+        throw new Error(`Failed to fetch README.md (Status: ${response.status})`);
+      }
+      const text = await response.text();
+      parseReadme(text);
+      
+      // Calculate Stats & Initialize Render
+      calculateAndDisplayStats();
+      renderSidebar();
+      renderContent();
+    } catch (err) {
+      console.error("Error loading README data:", err);
+      contentSection.innerHTML = `
+        <div class="error-state" style="padding: 3rem; text-align: center; color: #ef4444; font-family: var(--font-mono);">
+          [SYSTEM ERROR: FAILED TO PARSE AUTHORITATIVE README.md DATA]<br>
+          <span style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; display: block;">${err.message}</span>
+        </div>
+      `;
     }
-  });
+  }
 
-  // Display Stats
-  if (statTotalTools) statTotalTools.textContent = totalToolsCount;
-  if (statCategories) statCategories.textContent = STACK_DATA.length;
-  if (statFeatured) statFeatured.textContent = featuredCount;
-  if (statAlternatives) statAlternatives.textContent = alternativesCount;
+  // Markdown Table Parser
+  function parseReadme(markdown) {
+    const lines = markdown.split("\n");
+    let currentCategory = null;
+    STACK_DATA = [];
 
-  // Render Sidebar
+    const categoryIcons = {
+      "agent-frameworks": "[AGENT]",
+      "coding-agents": "[CODE]",
+      "browser-agents": "[WEB]",
+      "memory-systems": "[MEM]",
+      "mcp-ecosystem": "[MCP]",
+      "voice-agents": "[VOICE]",
+      "workflow-automation": "[FLOW]",
+      "computer-use": "[OS]",
+      "evaluation-observability": "[EVAL]",
+      "deployment-infrastructure": "[INFRA]",
+      "founder-saas-alternatives": "[SAAS]"
+    };
+
+    lines.forEach((line) => {
+      const trimmedLine = line.trim();
+
+      // Detect Category Headings (e.g., "## 01 Agent Frameworks")
+      if (trimmedLine.startsWith("## ")) {
+        const catText = trimmedLine.substring(3).trim();
+        // Remove leading category digits/numbers
+        const categoryName = catText.replace(/^\d+\s+/, "").trim();
+        const categoryId = categoryName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+        const icon = categoryIcons[categoryId] || "[TOOL]";
+
+        currentCategory = {
+          category: categoryName,
+          categoryId: categoryId,
+          icon: icon,
+          description: "",
+          items: []
+        };
+        STACK_DATA.push(currentCategory);
+      } 
+      // Detect Category Descriptions (non-empty lines immediately below heading, before tables)
+      else if (currentCategory && trimmedLine && !trimmedLine.startsWith("|") && !trimmedLine.startsWith("-") && !trimmedLine.startsWith("*")) {
+        if (!currentCategory.description) {
+          currentCategory.description = trimmedLine;
+        }
+      } 
+      // Detect Markdown Table Rows
+      else if (currentCategory && trimmedLine.startsWith("|")) {
+        const cols = trimmedLine.split("|").map(c => c.trim());
+        
+        // Ensure it's a valid data row (minimum columns, not table headers or formatting rows)
+        if (cols.length >= 8 && cols[1] !== "#" && !cols[1].startsWith("---")) {
+          const repoCell = cols[2];
+          const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/;
+          const match = repoCell.match(linkRegex);
+
+          if (match) {
+            const name = match[1];
+            const url = match[2];
+            const stars = cols[3];
+            const lang = cols[4];
+            const license = cols[5];
+            const selfHost = cols[6];
+            const note = cols[7];
+
+            currentCategory.items.push({
+              id: currentCategory.items.length + 1,
+              name: name,
+              url: url,
+              stars: stars,
+              lang: lang,
+              license: license,
+              selfHost: selfHost,
+              note: note
+            });
+          }
+        }
+      }
+    });
+  }
+
+  // Calculate & Display Stats
+  function calculateAndDisplayStats() {
+    let totalTools = 0;
+    let featured = 0;
+    let alternatives = 0;
+
+    STACK_DATA.forEach(cat => {
+      totalTools += cat.items.length;
+      if (cat.categoryId === "founder-saas-alternatives") {
+        alternatives += cat.items.length;
+      } else {
+        cat.items.forEach(item => {
+          if (item.stars && (item.stars.includes("K") || item.stars.includes("Active"))) {
+            featured++;
+          }
+        });
+      }
+    });
+
+    if (statTotalTools) statTotalTools.textContent = totalTools;
+    if (statCategories) statCategories.textContent = STACK_DATA.length;
+    if (statFeatured) statFeatured.textContent = featured;
+    if (statAlternatives) statAlternatives.textContent = alternatives;
+  }
+
+  // Render Sidebar Category Navigation
   function renderSidebar() {
     sidebarNav.innerHTML = "";
     STACK_DATA.forEach((cat, index) => {
@@ -53,7 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
       navItem.dataset.id = cat.categoryId;
       navItem.innerHTML = `
         <span class="nav-num">${idxStr}</span>
-        <span>${cat.icon}</span>
+        <span style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted);">${cat.icon}</span>
         <span>${cat.category}</span>
       `;
 
@@ -80,20 +181,21 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Render Stack Items
+  // Render Category grids
   function renderContent(filterText = "") {
     contentSection.innerHTML = "";
     const cleanFilter = filterText.toLowerCase().trim();
 
     STACK_DATA.forEach((cat) => {
-      // Filter items
+      // Filter items matching name, description, tags, language, or license
       const filteredItems = cat.items.filter(item => {
         return item.name.toLowerCase().includes(cleanFilter) || 
-               (item.note && item.note.toLowerCase().includes(cleanFilter)) ||
+               item.note.toLowerCase().includes(cleanFilter) ||
+               (item.lang && item.lang.toLowerCase().includes(cleanFilter)) ||
+               (item.license && item.license.toLowerCase().includes(cleanFilter)) ||
                (item.stars && item.stars.toLowerCase().includes(cleanFilter));
       });
 
-      // Skip displaying the category if it has no matches during filter
       if (cleanFilter && filteredItems.length === 0) return;
 
       const section = document.createElement("section");
@@ -104,7 +206,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const sectionHeader = document.createElement("div");
       sectionHeader.className = "category-header";
       sectionHeader.innerHTML = `
-        <span class="category-title-icon">${cat.icon}</span>
         <h2 class="category-title-text">${cat.category}</h2>
         <p class="category-desc">${cat.description}</p>
       `;
@@ -117,19 +218,36 @@ document.addEventListener("DOMContentLoaded", () => {
       // Render cards
       filteredItems.forEach(item => {
         const card = document.createElement("div");
-        card.className = `repo-card ${cat.categoryId === 'saas-alternatives' ? 'saas-alt' : ''}`;
+        card.className = `repo-card ${cat.categoryId === 'founder-saas-alternatives' ? 'saas-alt' : ''}`;
         
         let starsBadge = "";
-        if (item.stars) {
-          starsBadge = `<span class="stars-badge">★ ${item.stars}</span>`;
+        if (item.stars && item.stars !== "N/A") {
+          starsBadge = `<span class="stars-badge">${item.stars}</span>`;
+        }
+
+        // Build Badge tags
+        let badgeTagsHtml = "";
+        if (item.lang && item.lang !== "N/A") {
+          badgeTagsHtml += `<span class="badge-tag lang">${item.lang}</span>`;
+        }
+        if (item.license && item.license !== "N/A") {
+          badgeTagsHtml += `<span class="badge-tag lic">${item.license}</span>`;
+        }
+        if (item.selfHost && item.selfHost.toLowerCase() === "yes") {
+          badgeTagsHtml += `<span class="badge-tag self">Self-Hosted</span>`;
         }
 
         card.innerHTML = `
-          <div class="card-header">
-            <h3 class="repo-name">${item.name}</h3>
-            ${starsBadge}
+          <div>
+            <div class="card-header">
+              <h3 class="repo-name">${item.name}</h3>
+              ${starsBadge}
+            </div>
+            <div class="card-badges">
+              ${badgeTagsHtml}
+            </div>
+            <p class="repo-note">${item.note || 'No description available.'}</p>
           </div>
-          <p class="repo-note">${item.note || 'No description available.'}</p>
           <div class="card-actions">
             <a href="${item.url}" target="_blank" rel="noopener noreferrer" class="repo-link">
               <span>View Repository</span>
@@ -147,20 +265,19 @@ document.addEventListener("DOMContentLoaded", () => {
       contentSection.appendChild(section);
     });
 
-    // Add Copy Listeners
+    // Copy to Clipboard Listeners
     document.querySelectorAll(".copy-btn").forEach(btn => {
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
         const url = btn.getAttribute("data-url");
         navigator.clipboard.writeText(url).then(() => {
-          showToast(`Copied repository link!`);
+          showToast("Repository link copied to clipboard");
         }).catch(err => {
           console.error("Failed to copy link: ", err);
         });
       });
     });
 
-    // Setup intersection observer to sync scrolling with active category in sidebar (only if not searching)
     if (!cleanFilter) {
       setupScrollSync();
     }
@@ -191,21 +308,21 @@ document.addEventListener("DOMContentLoaded", () => {
     sections.forEach(sec => observer.observe(sec));
   }
 
-  // Toast System
+  // Toast Alerts
   function showToast(message) {
     toast.textContent = message;
     toast.classList.add("show");
     setTimeout(() => {
       toast.classList.remove("show");
-    }, 2500);
+    }, 2000);
   }
 
-  // Live Search listener
+  // Search input listeners
   searchInput.addEventListener("input", (e) => {
     renderContent(e.target.value);
   });
 
-  // Focus search input using slash shortcut
+  // Hotkey focus for '/'
   window.addEventListener("keydown", (e) => {
     if (e.key === "/" && document.activeElement !== searchInput) {
       e.preventDefault();
@@ -214,40 +331,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Suggest Modal Handlers
-  suggestBtn.addEventListener("click", () => {
-    modalOverlay.classList.add("open");
-  });
-
-  modalClose.addEventListener("click", () => {
-    modalOverlay.classList.remove("open");
-  });
-
-  modalOverlay.addEventListener("click", (e) => {
-    if (e.target === modalOverlay) {
-      modalOverlay.classList.remove("open");
-    }
-  });
-
-  suggestForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const name = document.getElementById("suggest-name").value;
-    const category = document.getElementById("suggest-category").value;
-    const repo = document.getElementById("suggest-repo").value;
-    const note = document.getElementById("suggest-note").value;
-
-    const payload = `### New Tool Suggestion\n- **Name**: ${name}\n- **Category**: ${category}\n- **Repository**: ${repo}\n- **Note**: ${note}`;
-    
-    navigator.clipboard.writeText(payload).then(() => {
-      showToast("Suggestion markdown copied! Paste it in the GitHub Issue.");
-      suggestForm.reset();
-      modalOverlay.classList.remove("open");
-    }).catch(() => {
-      alert("Failed to copy suggestion. Here is your text:\n\n" + payload);
-    });
-  });
-
-  // Initialize Rendering
-  renderSidebar();
-  renderContent();
+  // Fetch initial data
+  loadDataFromReadme();
 });
