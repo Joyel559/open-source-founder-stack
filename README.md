@@ -223,29 +223,3 @@ Open-source alternatives to massive tech platforms. High-potential business oppo
 
 ---
 
-### Local Development & Deployment
-
-The interactive dashboard is built entirely with vanilla HTML5, CSS3, and JavaScript, meaning zero build dependencies.
-
-#### Run Locally
-Open `index.html` in your browser, or start a server:
-```bash
-python3 -m http.server 8000
-```
-Then visit `http://localhost:8000`.
-
-#### Deploy to GitHub Pages
-1. Push all files (including the `assets` folder) to a public GitHub repository.
-2. In your repository settings, go to **Settings** > **Pages**.
-3. Choose the root of the branch you want to serve and click **Save**.
-4. The interactive dashboard will be hosted publicly.
-
----
-
-### Contribution Guide
-
-Suggestions and contributions are welcome. Please submit a Pull Request or open an Issue detailing the suggested repository, language, license, self-hosted compatibility, and use case.
-
----
-
-*Disclaimer: Star counts and active states are approximate. All brand names and logos belong to their respective owners.*
