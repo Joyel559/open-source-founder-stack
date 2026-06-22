@@ -1,6 +1,6 @@
 <div align="center">
   <img src="assets/560205641163845311.jpeg" width="140" height="140" alt="System Active Terminal Logo" />
-  <h1>the-open-source-founder-stack</h1>
+  <h1>open-source-founder-stack</h1>
   <p><b>[SYSTEM STATUS: ACTIVE] // [HOST_01]</b></p>
   <p>A curated directory of production-ready agent frameworks, tools, systems, and open-source SaaS alternatives for software founders.</p>
 
@@ -223,32 +223,4 @@ Open-source alternatives to massive tech platforms. High-potential business oppo
 
 ---
 
-### Local Development & Deployment
-
-The interactive dashboard is built entirely with vanilla HTML5, CSS3, and JavaScript, meaning zero build dependencies.
-
-#### Run Locally
-Open `index.html` in your browser, or start a server:
-```bash
-python3 -m http.server 8000
-```
-Then visit `http://localhost:8000`.
-
-#### Deploy to GitHub Pages
-1. Push all files (including the `assets` folder) to a public GitHub repository.
-2. In your repository settings, go to **Settings** > **Pages**.
-3. Choose the root of the branch you want to serve and click **Save**.
-4. The interactive dashboard will be hosted publicly.
-
----
-
-### Contribution Guide
-
-We appreciate resource suggestions!
-1. Open the interactive dashboard and click **"Suggest a Resource"**.
-2. Fill out the form, click **"Copy Markdown Payload"**.
-3. Create a new GitHub issue or Pull Request in this repository, paste the payload, and submit!
-
----
-
-*Disclaimer: Star counts and active states are approximate. All brand names and logos belong to their respective owners.*
+eir respective owners.*
