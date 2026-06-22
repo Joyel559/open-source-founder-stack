@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- SEO Meta Tags -->
+  <title>The Open-Source Founder Stack | Curated Developer Resources</title>
+  <meta name="description" content="An interactive, ultra-premium index of open-source GitHub repositories. Discover top-tier agent frameworks, coding assistants, memory systems, and high-margin SaaS business alternatives.">
+  <meta name="keywords" content="open source, founder, agent framework, coding agent, browser agent, memory system, MCP, voice agent, workflow automation, SaaS alternative">
+  <meta name="author" content="Open Source Founder Community">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/pixel_avatar.png">
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="app-sidebar">
+      <div class="brand-section">
+        <div class="logo-wrapper">
+          <img src="assets/pixel_avatar.png" class="logo-avatar" alt="System Active Terminal Logo" style="width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--primary); box-shadow: 0 0 10px var(--primary-glow);">
+          <span class="logo-text">FOUNDER STACK</span>
+        </div>
+        <div class="logo-tagline">Open Source Catalog</div>
+      </div>
+
+      <!-- Live Search Bar -->
+      <div class="search-container">
+        <span class="search-icon">🔍</span>
+        <input 
+          type="text" 
+          id="search-input" 
+          class="search-input" 
+          placeholder="Search repos, tags, alternatives..." 
+          aria-label="Search repositories"
+        >
+        <span class="search-shortcut">/</span>
+      </div>
+
+      <!-- Category Links (Populated dynamically) -->
+      <nav class="category-nav" id="sidebar-nav" aria-label="Category Navigation">
+        <!-- Rendered by JS -->
+      </nav>
+
+      <!-- Sidebar Footer -->
+      <div class="sidebar-footer">
+        <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="sidebar-link" id="github-link">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+          <span>GitHub Public Repo</span>
+        </a>
+        <a href="#" class="sidebar-link" id="suggest-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+          <span>Suggest a Resource</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content" id="app-main-content">
+      
+      <!-- Top Dashboard Header -->
+      <header class="dashboard-header" id="app-header">
+        <div class="header-text">
+          <h1>The Open-Source Founder Stack</h1>
+          <p>A directory of production-grade libraries, frameworks, tools, and business alternatives helping founders launch software companies.</p>
+        </div>
+        <div class="header-actions">
+          <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="btn btn-outline" id="header-btn-star">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            <span>Star on GitHub</span>
+          </a>
+        </div>
+      </header>
+
+      <!-- Dashboard Stats -->
+      <section class="dashboard-stats" aria-label="Database stats" id="app-stats">
+        <div class="stat-card">
+          <span class="stat-label">Total Repositories</span>
+          <span class="stat-value" id="stat-total-tools">--</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Categories</span>
+          <span class="stat-value" id="stat-categories">--</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Starred AI Frameworks</span>
+          <span class="stat-value" id="stat-featured">--</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">SaaS Alternatives</span>
+          <span class="stat-value" id="stat-alternatives">--</span>
+        </div>
+      </section>
+
+      <!-- Category Listings Grid (Populated dynamically) -->
+      <div id="content-sections">
+        <!-- Rendered by JS -->
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast" role="alert" aria-live="polite">Copied link to clipboard!</div>
+
+  <!-- Suggest Resource Modal Overlay -->
+  <div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-content">
+      <button class="modal-close" id="modal-close" aria-label="Close modal">&times;</button>
+      <h3 class="modal-title" id="modal-title">Suggest an Open-Source Tool</h3>
+      <p class="modal-desc">Fill out the details. When submitted, we will format it in Markdown and copy it to your clipboard for GitHub submission.</p>
+      
+      <form id="suggest-form">
+        <div class="form-group">
+          <label for="suggest-name" class="form-label">Repository Name</label>
+          <input type="text" id="suggest-name" class="form-control" placeholder="e.g. Supabase" required>
+        </div>
+        <div class="form-group">
+          <label for="suggest-category" class="form-label">Category</label>
+          <select id="suggest-category" class="form-control" required>
+            <option value="Agent Frameworks">Agent Frameworks</option>
+            <option value="Coding Agents">Coding Agents</option>
+            <option value="Browser Agents">Browser Agents</option>
+            <option value="Memory Systems">Memory Systems</option>
+            <option value="MCP Ecosystem">MCP Ecosystem</option>
+            <option value="Voice Agents">Voice Agents</option>
+            <option value="Workflow Automation">Workflow Automation</option>
+            <option value="Computer Use">Computer Use</option>
+            <option value="Evaluation & Observability">Evaluation & Observability</option>
+            <option value="Deployment & Infrastructure">Deployment & Infrastructure</option>
+            <option value="Founder SaaS Alternatives">Founder SaaS Alternatives</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="suggest-repo" class="form-label">GitHub URL</label>
+          <input type="url" id="suggest-repo" class="form-control" placeholder="https://github.com/..." required>
+        </div>
+        <div class="form-group">
+          <label for="suggest-note" class="form-label">Founder Business / Purpose Note</label>
+          <textarea id="suggest-note" class="form-control" rows="3" placeholder="What is the value proposition or alternative target?" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 1rem;" id="copy-payload-btn">
+          <span>Copy Markdown Payload</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Script Imports -->
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
